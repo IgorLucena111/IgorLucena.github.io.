@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel de Sinais 5 Minutos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 10px;
+    }
+    th, td {
+      border: 1px solid #555;
+      padding: 10px;
+      text-align: center;
+      font-size: 1.2em;
+    }
+    th {
+      background: #222;
+    }
+    td.signal-buy {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    td.signal-sell {
+      color: #f44336;
+      font-weight: bold;
+    }
+    td.signal-neutral {
+      color: #bbb;
+      font-weight: normal;
+    }
+    #lastUpdate {
+      margin-top: 5px;
+      font-size: 0.9em;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Painel de Sinais (Atualiza a cada 5 minutos)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Par</th>
+        <th>Sinal</th>
+      </tr>
+    </thead>
+    <tbody id="signalsBody">
+      <tr><td>EUR/USD</td><td id="eurusd" class="signal-neutral">Aguardando...</td></tr>
+      <tr><td>GBP/JPY</td><td id="gbpjpy" class="signal-neutral">Aguardando...</td></tr>
+      <tr><td>GBP/USD</td><td id="gbpusd" class="signal-neutral">Aguardando...</td></tr>
+      <tr><td>USD/CAD</td><td id="usdcad" class="signal-neutral">Aguardando...</td></tr>
+    </tbody>
+  </table>
+  <div id="lastUpdate">Última atualização: -</div>
+
+<script>
+  // Função para simular sinais aleatórios: 'COMPRA', 'VENDA' ou 'NEUTRO'
+  function gerarSinalSimulado() {
+    const sinais = ['COMPRA', 'VENDA', 'NEUTRO'];
+    return sinais[Math.floor(Math.random() * sinais.length)];
+  }
+
+  // Atualiza sinais e exibe alerta popup se mudar para compra ou venda
+  function atualizarSinais() {
+    const pares = ['eurusd', 'gbpjpy', 'gbpusd', 'usdcad'];
+    pares.forEach(par => {
+      const td = document.getElementById(par);
+      const sinalAntigo = td.textContent;
+      const novoSinal = gerarSinalSimulado();
+
+      td.textContent = novoSinal;
+
+      // Atualiza classe para mudar cor
+      td.classList.remove('signal-buy', 'signal-sell', 'signal-neutral');
+      if (novoSinal === 'COMPRA') {
+        td.classList.add('signal-buy');
+      } else if (novoSinal === 'VENDA') {
+        td.classList.add('signal-sell');
+      } else {
+        td.classList.add('signal-neutral');
+      }
+
+      // Se o sinal mudou e não é neutro, mostra popup
+      if (novoSinal !== 'NEUTRO' && novoSinal !== sinalAntigo) {
+        alert(`Sinal novo para ${par.toUpperCase()}: ${novoSinal}`);
+      }
+    });
+
+    // Atualiza hora da última atualização
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent = 
+      `Última atualização: ${now.toLocaleTimeString()}`;
+  }
+
+  // Atualiza na hora que abre a página
+  atualizarSinais();
+
+  // Atualiza a cada 5 minutos (300000 ms)
+  setInterval(atualizarSinais, 300000);
+</script>
+
+</body>
+</html>
