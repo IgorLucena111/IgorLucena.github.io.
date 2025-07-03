@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Sinais EUR/USD M5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f5f5f5; }
+    h1 { color: #333; }
+    #signal { font-size: 48px; margin-top: 40px; font-weight: bold; }
+    #time { font-size: 16px; color: #555; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Painel de Sinais – EUR/USD M5</h1>
+  <div id="signal">⏳ Carregando sinal...</div>
+  <div id="time"></div>
+
+  <script>
+    // Cálculo de EMA
+    function calculateEMA(data, period) {
+      const k = 2 / (period + 1);
+      let emaArray = [data[0]];
+      for (let i = 1; i < data.length; i++) {
+        emaArray.push(data[i] * k + emaArray[i - 1] * (1 - k));
+      }
+      return emaArray;
+    }
+
+    // Cálculo de RSI
+    function calculateRSI(data, period = 14) {
+      let gains = 0, losses = 0;
+      let rsi = [];
+      for (let i = 1; i < period; i++) {
+        let change = data[i] - data[i - 1];
+        change >= 0 ? gains += change : losses -= change;
+        rsi.push(null);
+      }
+      for (let i = period; i < data.length; i++) {
+        let change = data[i] - data[i - 1];
+        let gain = change > 0 ? change : 0;
+        let loss = change < 0 ? -change : 0;
+        gains = (gains * (period - 1) + gain) / period;
+        losses = (losses * (period - 1) + loss) / period;
+        let rs = gains / (losses || 1);
+        rsi.push(100 - 100 / (1 + rs));
+      }
+      return rsi;
+    }
+
+    // Simulação de candles
+    function gerarCandlesMock() {
+      let candles = [1.1000];
+      for (let i = 1; i < 100; i++) {
+        candles.push(candles[i - 1] + (Math.random() - 0.5) * 0.001);
+      }
+      return candles;
+    }
+
+    function gerarSinal(ema9, ema21, rsi) {
+      const i = ema9.length - 1;
+      if (ema9[i] > ema21[i] && rsi[i] < 70) return '🟢 COMPRA';
+      if (ema9[i] < ema21[i] && rsi[i] > 30) return '🔴 VENDA';
+      return '⚪ NEUTRO';
+    }
+
+    function atualizarPainel() {
+      const candles = gerarCandlesMock(); // Substituir por API real depois
+      const ema9 = calculateEMA(candles, 9);
+      const ema21 = calculateEMA(candles, 21);
+      const rsi = calculateRSI(candles, 14);
+      const sinal = gerarSinal(ema9, ema21, rsi);
+
+      document.getElementById('signal').innerText = sinal;
+      document.getElementById('time').innerText = 'Última atualização: ' + new Date().toLocaleTimeString();
+    }
+
+    atualizarPainel();
+    setInterval(atualizarPainel, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
